@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F2F4F8">
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:id="@+id/topBarHelp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#1A237E"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Help"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Swipe to read each section"
+            android:textColor="#B0BEC5"
+            android:textSize="13sp"
+            android:layout_marginTop="2dp"/>
+
+    </LinearLayout>
+
+    <!-- ViewPager -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerHelp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Bottom Bar -->
+    <LinearLayout
+        android:id="@+id/bottomBarHelp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="6dp"
+        android:padding="16dp">
+
+        <!-- Dots row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp">
+
+            <View
+                android:id="@+id/dotHelp0"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/circle_green"/>
+
+            <View
+                android:id="@+id/dotHelp1"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/circle_red"/>
+
+            <View
+                android:id="@+id/dotHelp2"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/circle_red"/>
+
+            <View
+                android:id="@+id/dotHelp3"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/circle_red"/>
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonBackToHomeHelp"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Back to Home"
+            android:textSize="16sp"
+            app:backgroundTint="#1A237E"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_arrow_back"
+            style="@style/Widget.MaterialComponents.Button"/>
+
+    </LinearLayout>
+
+</LinearLayout>
