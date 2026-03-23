@@ -5,12 +5,16 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,6 +28,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
 public class WearableManagerActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME        = "EdgeImpulsePrefs";
@@ -32,7 +39,14 @@ public class WearableManagerActivity extends AppCompatActivity {
     private static final String MODE_VC           = "voice";
     private static final String PREF_BLE          = "ble_address";
     private static final String PREF_WATCH_CONNECTED = "pref_watch_connected";
+    private static final String PREF_ALERT_NAME   = "pref_alert_name";
     private static final int    REQ_BLE_CONNECT   = 1003;
+
+    // Nordic UART Service — the standard BLE protocol for custom embedded devices
+    private static final UUID UART_SERVICE_UUID =
+            UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
+    private static final UUID UART_RX_UUID =
+            UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
 
     private ImageButton  buttonBackTop;
     private MaterialButton btnModeSounds, btnModeVoice;
@@ -61,6 +75,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     private String       ble;
 
     private boolean      modeChosen = false;
+    private boolean      pendingSend = false;
     private BluetoothGatt gatt;
 
     // ─────────────────────────────────────────────
@@ -180,18 +195,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         }
 
         if (btnUpdateMyName != null) {
-            btnUpdateMyName.setOnClickListener(v -> {
-                if (!isConnected()) {
-                    Toast.makeText(this,
-                            "Please connect your watch first.",
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
-                // TODO: open name-update flow
-                Toast.makeText(this,
-                        "Set the name the watch should listen for.",
-                        Toast.LENGTH_LONG).show();
-            });
+            btnUpdateMyName.setOnClickListener(v -> showSetNameDialog());
         }
 
         if (btnProceedTeachAlerts != null) {
@@ -207,10 +211,7 @@ public class WearableManagerActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-                // TODO: trigger send flow
-                Toast.makeText(this,
-                        "Sending saved alerts to your watch...",
-                        Toast.LENGTH_LONG).show();
+                startSendToWatch();
             });
         }
     }
@@ -341,7 +342,9 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         if (tvBleAddr   != null) tvBleAddr.setText("Watch address: " + ble);
         if (tvWatchModel   != null) tvWatchModel.setText("Not sent yet");
-        if (tvWatchClasses != null) tvWatchClasses.setText("Not set");
+        String savedName = sp.getString(PREF_ALERT_NAME, "");
+        if (tvWatchClasses != null)
+            tvWatchClasses.setText(savedName.isEmpty() ? "Not set" : "Name: " + savedName);
     }
 
     private void setMode(String newMode) {
@@ -375,6 +378,97 @@ public class WearableManagerActivity extends AppCompatActivity {
                                 active ? "#1A237E" : "#EEF2FF")));
         b.setTextColor(android.graphics.Color.parseColor(
                 active ? "#FFFFFF" : "#6B7280"));
+    }
+
+    // ─────────────────────────────────────────────
+    //  Set-name dialog
+    // ─────────────────────────────────────────────
+
+    private void showSetNameDialog() {
+        EditText input = new EditText(this);
+        input.setText(prefs().getString(PREF_ALERT_NAME, ""));
+        input.setHint("e.g. Alex");
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        int pad = dpToPx(16);
+        input.setPadding(pad, dpToPx(12), pad, dpToPx(12));
+
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Set alert name")
+                .setMessage("Enter the name the watch should listen for:")
+                .setView(input)
+                .setPositiveButton("Save", (d, w) -> {
+                    String name = input.getText().toString().trim();
+                    if (name.isEmpty()) {
+                        Toast.makeText(this, "Please enter a name.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    prefs().edit().putString(PREF_ALERT_NAME, name).apply();
+                    if (tvWatchClasses != null)
+                        tvWatchClasses.setText("Name: " + name);
+                    Toast.makeText(this,
+                            "Name \"" + name + "\" saved.", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    // ─────────────────────────────────────────────
+    //  Send alerts to watch
+    // ─────────────────────────────────────────────
+
+    private void startSendToWatch() {
+        if (pb != null) {
+            pb.setIndeterminate(true);
+            pb.setVisibility(View.VISIBLE);
+        }
+        if (tvStatus != null) tvStatus.setText("Sending alerts to watch…");
+
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{ Manifest.permission.BLUETOOTH_CONNECT }, REQ_BLE_CONNECT);
+            return;
+        }
+        // If services are already discovered, send immediately; otherwise discover first
+        if (gatt != null && !gatt.getServices().isEmpty()) {
+            doSendToWatch(gatt);
+        } else {
+            pendingSend = true;
+            if (gatt != null) gatt.discoverServices();
+        }
+    }
+
+    private void doSendToWatch(BluetoothGatt g) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) return;
+
+        BluetoothGattService svc = g.getService(UART_SERVICE_UUID);
+        if (svc == null) {
+            if (pb != null) pb.setVisibility(View.GONE);
+            if (tvStatus != null) tvStatus.setText("Watch service not found.");
+            Toast.makeText(this,
+                    "Couldn't find the watch data service.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        BluetoothGattCharacteristic ch = svc.getCharacteristic(UART_RX_UUID);
+        if (ch == null) {
+            if (pb != null) pb.setVisibility(View.GONE);
+            if (tvStatus != null) tvStatus.setText("Watch characteristic not found.");
+            Toast.makeText(this,
+                    "Couldn't find the watch data characteristic.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String alertName = prefs().getString(PREF_ALERT_NAME, "");
+        String payload = "{\"mode\":\"" + mode + "\",\"name\":\"" + alertName + "\"}";
+        ch.setValue(payload.getBytes(StandardCharsets.UTF_8));
+        ch.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+        if (!g.writeCharacteristic(ch)) {
+            if (pb != null) pb.setVisibility(View.GONE);
+            if (tvStatus != null) tvStatus.setText("Send failed — please try again.");
+            Toast.makeText(this, "Send failed. Please try again.", Toast.LENGTH_LONG).show();
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -424,6 +518,11 @@ public class WearableManagerActivity extends AppCompatActivity {
                 @Override
                 public void onConnectionStateChange(BluetoothGatt g, int st, int ns) {
                     if (ns == BluetoothProfile.STATE_CONNECTED) {
+                        // Discover services immediately so they're ready when the user taps "Send"
+                        if (ActivityCompat.checkSelfPermission(WearableManagerActivity.this,
+                                Manifest.permission.BLUETOOTH_CONNECT)
+                                == PackageManager.PERMISSION_GRANTED)
+                            g.discoverServices();
                         runOnUiThread(() -> {
                             refreshConnUi(true);
                             updateEnabledState();
@@ -435,6 +534,37 @@ public class WearableManagerActivity extends AppCompatActivity {
                             updateEnabledState();
                         });
                     }
+                }
+
+                @Override
+                public void onServicesDiscovered(BluetoothGatt g, int status) {
+                    if (pendingSend && status == BluetoothGatt.GATT_SUCCESS) {
+                        pendingSend = false;
+                        runOnUiThread(() -> doSendToWatch(g));
+                    }
+                }
+
+                @Override
+                public void onCharacteristicWrite(BluetoothGatt g,
+                        BluetoothGattCharacteristic ch, int status) {
+                    runOnUiThread(() -> {
+                        if (pb  != null) pb.setVisibility(View.GONE);
+                        if (tvPct != null) tvPct.setVisibility(View.GONE);
+                        if (status == BluetoothGatt.GATT_SUCCESS) {
+                            if (tvWatchModel != null) tvWatchModel.setText("Alerts sent ✓");
+                            if (tvStatus != null)
+                                tvStatus.setText("Watch connected. Choose what to do.");
+                            Toast.makeText(WearableManagerActivity.this,
+                                    "Alerts sent to watch successfully.",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (tvStatus != null)
+                                tvStatus.setText("Send failed — please try again.");
+                            Toast.makeText(WearableManagerActivity.this,
+                                    "Send failed. Please try again.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             });
         } catch (IllegalArgumentException e) {
