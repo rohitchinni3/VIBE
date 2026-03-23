@@ -66,8 +66,13 @@ public class WearableManagerActivity extends AppCompatActivity {
     private static final String PREF_LAST_LBL_SENT_VC = "last_labels_sent_voice";
 
     // BLE transfer constants
-    private static final byte[] END_MARKER  = "END".getBytes();
-    private static final int    MAX_RETRIES = 3;
+    private static final byte[] END_MARKER              = "END".getBytes();
+    private static final int    MAX_RETRIES             = 3;
+    private static final int    ACK_TIMEOUT_MS          = 2000;
+    private static final int    BLE_WRITE_DELAY_MS      = 300;
+    private static final int    BLE_CCCD_DELAY_MS       = 200;
+    private static final int    DISCONNECT_DELAY_MS     = 800;
+    private static final int    MAX_LABEL_DISPLAY_LENGTH = 80;
 
     // BLE UUIDs
     private static final UUID NV_OTA_SVC = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
@@ -621,7 +626,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         if (cccd != null) {
             cccd.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             gatt.writeDescriptor(cccd);
-            try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+            try { Thread.sleep(BLE_CCCD_DELAY_MS); } catch (InterruptedException ignored) {}
         }
 
         // Write class CSV
@@ -632,7 +637,7 @@ public class WearableManagerActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to write labels.", Toast.LENGTH_LONG).show());
             return;
         }
-        try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+        try { Thread.sleep(BLE_WRITE_DELAY_MS); } catch (InterruptedException ignored) {}
 
         // Optionally write target characteristic for voice mode
         if (pendingTarget && pendingName != null) {
@@ -643,7 +648,7 @@ public class WearableManagerActivity extends AppCompatActivity {
                     targetChr.setValue(pendingName.getBytes());
                     targetChr.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
                     gatt.writeCharacteristic(targetChr);
-                    try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                    try { Thread.sleep(BLE_WRITE_DELAY_MS); } catch (InterruptedException ignored) {}
                 }
             }
             pendingTarget = false;
@@ -737,7 +742,7 @@ public class WearableManagerActivity extends AppCompatActivity {
             return;
         }
         waitAck = true;
-        ackH.postDelayed(this::retryChunk, 2000);
+        ackH.postDelayed(this::retryChunk, ACK_TIMEOUT_MS);
     }
 
     private void sendEnd() {
@@ -793,7 +798,8 @@ public class WearableManagerActivity extends AppCompatActivity {
 
     private void saveLastLabelsSent(String csv) {
         String key      = MODE_VC.equals(mode) ? PREF_LAST_LBL_SENT_VC : PREF_LAST_LBL_SENT_NV;
-        String truncated = csv.length() > 80 ? csv.substring(0, 80) + "\u2026" : csv;
+        String truncated = csv.length() > MAX_LABEL_DISPLAY_LENGTH
+                ? csv.substring(0, MAX_LABEL_DISPLAY_LENGTH) + "\u2026" : csv;
         prefs().edit().putString(key, truncated).apply();
     }
 
@@ -907,8 +913,8 @@ public class WearableManagerActivity extends AppCompatActivity {
     private void disconnLater() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             safeClose();
-            runOnUiThread(() -> refreshConnUi(false));
-        }, 800);
+            refreshConnUi(false);
+        }, DISCONNECT_DELAY_MS);
     }
 
     // ─────────────────────────────────────────────
