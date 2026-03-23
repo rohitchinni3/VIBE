@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F2F4F8">
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#1A237E"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/buttonBackTop"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            app:tint="#FFFFFF"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="⌚ Set up my watch"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/wearableContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Mode Selector Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎯 What should my watch listen for?"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonModeNonVoice"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:text="Sounds"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="8dp"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonModeVoice"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:text="My name"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="8dp"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textModeDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Vibrates for sounds like horn or doorbell."
+                        android:textColor="#6B7280"
+                        android:textSize="14sp"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Connection Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📡 Connection"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Status row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <View
+                            android:id="@+id/viewConnectionDotWearable"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="@drawable/circle_red"/>
+
+                        <TextView
+                            android:id="@+id/textConnectionStateWearable"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Not connected"
+                            android:textColor="#EF4444"
+                            android:textSize="20sp"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textBleAddressWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Watch address: A0:DD:6C:73:77:76"
+                        android:textColor="#6B7280"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonConnectWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="Connect"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#1A237E"
+                        app:cornerRadius="8dp"
+                        style="@style/Widget.MaterialComponents.Button"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Watch Status Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⌚ What's on my watch"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/textWatchModelWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_info_row"
+                        android:padding="12dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Not sent yet"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/textWatchClassesWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_info_row"
+                        android:padding="12dp"
+                        android:text="Not set"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Status / Progress -->
+            <TextView
+                android:id="@+id/textWearableStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:padding="4dp"
+                android:text="Pick Sounds or My name to continue."
+                android:textColor="#6B7280"
+                android:textSize="14sp"/>
+
+            <ProgressBar
+                android:id="@+id/progressWearable"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/textWearablePercent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="0%"
+                android:textSize="12sp"
+                android:visibility="gone"/>
+
+            <!-- Actions Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✋ What do you want to do?"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Update my name -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonUpdateMyNameWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Set alert name"
+                        android:textSize="15sp"
+                        app:backgroundTint="#1A237E"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_model"
+                        style="@style/Widget.MaterialComponents.Button"/>
+
+                    <TextView
+                        android:id="@+id/textUpdateNameHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tell the watch what name to listen for"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"
+                        android:textStyle="italic"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="4dp"/>
+
+                    <!-- Teach alerts -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonProceedTeachAlerts"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Teach new alerts"
+                        android:textSize="15sp"
+                        app:backgroundTint="#1A237E"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_model"
+                        style="@style/Widget.MaterialComponents.Button"/>
+
+                    <TextView
+                        android:id="@+id/textTeachAlertsHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Add sounds or your name for the watch to learn"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"
+                        android:textStyle="italic"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="4dp"/>
+
+                    <!-- Send existing model -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonSendExistingModelWearable"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Send alerts to watch"
+                        android:textSize="15sp"
+                        app:backgroundTint="#1A237E"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_watch"
+                        style="@style/Widget.MaterialComponents.Button"/>
+
+                    <TextView
+                        android:id="@+id/textSendSavedHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Push saved alerts from phone to watch"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"
+                        android:textStyle="italic"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="4dp"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
