@@ -60,7 +60,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     private String       mode;
     private String       ble;
 
-    private boolean      modeChosenThisSession = false;
+    private boolean      modeChosen = false;
     private BluetoothGatt gatt;
 
     // ─────────────────────────────────────────────
@@ -168,7 +168,7 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         if (btnConnect != null) {
             btnConnect.setOnClickListener(v -> {
-                if (!modeChosenThisSession) { showModeGateDialog(); return; }
+                if (!modeChosen) { showModeGateDialog(); return; }
                 if (isConnected()) {
                     safeClose();
                     refreshConnUi(false);
@@ -195,19 +195,8 @@ public class WearableManagerActivity extends AppCompatActivity {
         }
 
         if (btnProceedTeachAlerts != null) {
-            btnProceedTeachAlerts.setOnClickListener(v -> {
-                if (!isConnected()) {
-                    Toast.makeText(this,
-                            "Please connect your watch first.",
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (!modeChosenThisSession) {
-                    showModeGateDialog();
-                    return;
-                }
-                startActivity(new Intent(this, ModelManagerActivity.class));
-            });
+            btnProceedTeachAlerts.setOnClickListener(v ->
+                    startActivity(new Intent(this, ModelManagerActivity.class)));
         }
 
         if (btnSendExistingModel != null) {
@@ -231,7 +220,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     // ─────────────────────────────────────────────
 
     private void showModeGateDialog() {
-        if (modeChosenThisSession) return;
+        if (modeChosen) return;
 
         // Inflate our custom layout
         View dialogView = getLayoutInflater()
@@ -300,12 +289,12 @@ public class WearableManagerActivity extends AppCompatActivity {
 
     private void onModeChosen(String newMode) {
         setMode(newMode);
-        modeChosenThisSession = true;
+        modeChosen = true;
         updateEnabledState();
     }
 
     private void updateEnabledState() {
-        boolean modeOk    = modeChosenThisSession;
+        boolean modeOk    = modeChosen;
         boolean connected = isConnected();
 
         if (btnConnect != null) {
@@ -313,9 +302,11 @@ public class WearableManagerActivity extends AppCompatActivity {
             btnConnect.setAlpha(modeOk ? 1f : 0.45f);
         }
 
-        setActionEnabled(btnUpdateMyName,       connected);
-        setActionEnabled(btnProceedTeachAlerts, connected);
-        setActionEnabled(btnSendExistingModel,  connected);
+        // Action buttons are always enabled; their click handlers show a
+        // "please connect first" toast when the watch is not yet connected.
+        setActionEnabled(btnUpdateMyName,       true);
+        setActionEnabled(btnProceedTeachAlerts, true);
+        setActionEnabled(btnSendExistingModel,  true);
 
         if (tvStatus != null) {
             if (!modeOk)      tvStatus.setText("Pick Sounds or My name to continue.");
@@ -339,6 +330,10 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         mode = sp.getString(PREF_MODE, MODE_NV);
         if (!MODE_VC.equals(mode)) mode = MODE_NV;
+
+        // If a mode was already persisted, treat it as chosen so the Connect
+        // button is enabled immediately on return visits.
+        if (sp.contains(PREF_MODE)) modeChosen = true;
 
         ble = sp.getString(PREF_BLE, "");
         if (ble == null || ble.trim().isEmpty() || "ble_address".equals(ble))
