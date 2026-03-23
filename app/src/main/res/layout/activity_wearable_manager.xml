@@ -305,7 +305,7 @@
                         style="@style/Widget.MaterialComponents.Button"/>
 
                     <TextView
-                        android:id="@+id/textHintUpdateName"
+                        android:id="@+id/textUpdateNameHint"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Set the name used for 'My name' alerts."
@@ -329,7 +329,7 @@
                         style="@style/Widget.MaterialComponents.Button"/>
 
                     <TextView
-                        android:id="@+id/textHintTeachAlerts"
+                        android:id="@+id/textTeachAlertsHint"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Add new sounds (or my name) and improve alerts."
@@ -353,7 +353,7 @@
                         style="@style/Widget.MaterialComponents.Button"/>
 
                     <TextView
-                        android:id="@+id/textHintSendModel"
+                        android:id="@+id/textSendSavedHint"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Send alerts already saved on this phone to the watch."
