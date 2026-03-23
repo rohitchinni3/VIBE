@@ -283,7 +283,7 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setCancelable(false)
+                .setCancelable(true)
                 .create();
 
         if (dialog.getWindow() != null)
@@ -330,6 +330,9 @@ public class WearableManagerActivity extends AppCompatActivity {
             onModeChosen(chosen[0]);
             dialog.dismiss();
         });
+
+        // Allow back-press to leave the screen instead of blocking indefinitely.
+        dialog.setOnCancelListener(d -> finish());
 
         dialog.show();
     }
@@ -598,6 +601,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     //  BLE — labels send
     // ─────────────────────────────────────────────
 
+    @SuppressWarnings("deprecation")
     private void bleSendLabels(String csv) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) return;
@@ -672,6 +676,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     //  BLE — OTA model transfer
     // ─────────────────────────────────────────────
 
+    @SuppressWarnings("deprecation")
     private void bleTransfer(byte[] weights, int chunkSz, String folderName) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) return;
@@ -725,6 +730,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         return result;
     }
 
+    @SuppressWarnings("deprecation")
     private void sendChunk() {
         if (chunks == null || chunkIdx >= chunks.length) {
             sendEnd();
@@ -745,6 +751,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         ackH.postDelayed(this::retryChunk, ACK_TIMEOUT_MS);
     }
 
+    @SuppressWarnings("deprecation")
     private void sendEnd() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) return;
@@ -826,6 +833,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         if (tvPct != null) tvPct.setVisibility(View.GONE);
     }
 
+    @SuppressWarnings("deprecation")
     private void connectWatch() {
         BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
         if (ba == null || !ba.isEnabled()) {
@@ -878,14 +886,18 @@ public class WearableManagerActivity extends AppCompatActivity {
                             chunkIdx++;
                             final int progress = chunkIdx;
                             final int total    = chunks != null ? chunks.length : 1;
-                            runOnUiThread(() -> {
+                            // Dispatch UI update and next write to the main thread.
+                            // Calling gatt.writeCharacteristic() directly from the
+                            // GATT callback thread can cause serialisation issues on
+                            // some Android versions.
+                            ackH.post(() -> {
                                 if (pb != null) pb.setProgress(progress);
                                 if (tvPct != null)
                                     tvPct.setText((int)(100.0 * progress / total) + "%");
+                                sendChunk();
                             });
-                            sendChunk();
                         } else {
-                            retryChunk();
+                            ackH.post(WearableManagerActivity.this::retryChunk);
                         }
                     }
                 }
