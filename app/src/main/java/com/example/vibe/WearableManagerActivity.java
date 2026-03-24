@@ -289,11 +289,15 @@ public class WearableManagerActivity extends AppCompatActivity {
         if (dialog.getWindow() != null)
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        View           optionSounds = dialogView.findViewById(R.id.dialogOptionSounds);
-        View           optionMyName = dialogView.findViewById(R.id.dialogOptionMyName);
-        TextView       checkSounds  = dialogView.findViewById(R.id.dialogCheckSounds);
-        TextView       checkMyName  = dialogView.findViewById(R.id.dialogCheckMyName);
-        MaterialButton btnContinue  = dialogView.findViewById(R.id.dialogBtnContinue);
+        View           optionSounds    = dialogView.findViewById(R.id.dialogOptionSounds);
+        View           optionMyName    = dialogView.findViewById(R.id.dialogOptionMyName);
+        TextView       checkSounds     = dialogView.findViewById(R.id.dialogCheckSounds);
+        TextView       checkMyName     = dialogView.findViewById(R.id.dialogCheckMyName);
+        TextView       titleSounds     = dialogView.findViewById(R.id.dialogTitleSounds);
+        TextView       subtitleSounds  = dialogView.findViewById(R.id.dialogSubtitleSounds);
+        TextView       titleMyName     = dialogView.findViewById(R.id.dialogTitleMyName);
+        TextView       subtitleMyName  = dialogView.findViewById(R.id.dialogSubtitleMyName);
+        MaterialButton btnContinue     = dialogView.findViewById(R.id.dialogBtnContinue);
 
         final String[] chosen = { MODE_NV };
 
@@ -303,11 +307,15 @@ public class WearableManagerActivity extends AppCompatActivity {
             checkSounds.setVisibility(View.INVISIBLE);
             optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
             optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, true);
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, false);
         } else {
             checkSounds.setVisibility(View.VISIBLE);
             checkMyName.setVisibility(View.INVISIBLE);
             optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
             optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, true);
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, false);
         }
 
         optionSounds.setOnClickListener(v -> {
@@ -316,6 +324,8 @@ public class WearableManagerActivity extends AppCompatActivity {
             checkMyName.setVisibility(View.INVISIBLE);
             optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
             optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, true);
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, false);
         });
 
         optionMyName.setOnClickListener(v -> {
@@ -324,6 +334,8 @@ public class WearableManagerActivity extends AppCompatActivity {
             checkSounds.setVisibility(View.INVISIBLE);
             optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
             optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, true);
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, false);
         });
 
         btnContinue.setOnClickListener(v -> {
@@ -340,6 +352,18 @@ public class WearableManagerActivity extends AppCompatActivity {
     // ─────────────────────────────────────────────
     //  Mode helpers
     // ─────────────────────────────────────────────
+
+    /** Updates text colors for a mode option row to match the selected/unselected state. */
+    private void setModeOptionColors(TextView title, TextView subtitle, TextView check,
+                                     boolean selected) {
+        int titleColor    = selected ? android.graphics.Color.WHITE
+                                     : android.graphics.Color.parseColor("#111827");
+        int subtitleColor = selected ? android.graphics.Color.parseColor("#CBD5E1")
+                                     : android.graphics.Color.parseColor("#6B7280");
+        title.setTextColor(titleColor);
+        subtitle.setTextColor(subtitleColor);
+        check.setTextColor(android.graphics.Color.WHITE);
+    }
 
     private void onModeChosen(String newMode) {
         setMode(newMode);

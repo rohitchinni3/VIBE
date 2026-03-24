@@ -4,7 +4,8 @@
   Shown on first launch of WearableManagerActivity before the mode is chosen.
   User selects either "Sounds" (non-voice model) or "My name" (voice model).
   IDs used by showModeGateDialog() in WearableManagerActivity.java:
-    dialogOptionSounds, dialogOptionMyName, dialogCheckSounds,
+    dialogOptionSounds, dialogOptionMyName, dialogTitleSounds, dialogSubtitleSounds,
+    dialogTitleMyName, dialogSubtitleMyName, dialogCheckSounds,
     dialogCheckMyName, dialogBtnContinue.
 -->
 <com.google.android.material.card.MaterialCardView
@@ -61,18 +62,20 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/dialogTitleSounds"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sounds"
-                    android:textColor="#111827"
+                    android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
                 <TextView
+                    android:id="@+id/dialogSubtitleSounds"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Vibrate for horn, doorbell, and more"
-                    android:textColor="#6B7280"
+                    android:textColor="#CBD5E1"
                     android:textSize="13sp"
                     android:layout_marginTop="2dp"/>
 
@@ -83,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="✓"
-                android:textColor="#1A237E"
+                android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:visibility="visible"/>
@@ -117,6 +120,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/dialogTitleMyName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="My name"
@@ -125,6 +129,7 @@
                     android:textStyle="bold"/>
 
                 <TextView
+                    android:id="@+id/dialogSubtitleMyName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Vibrate when someone calls your name"
@@ -139,7 +144,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="✓"
-                android:textColor="#1A237E"
+                android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:visibility="invisible"/>
