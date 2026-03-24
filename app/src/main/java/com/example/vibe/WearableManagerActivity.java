@@ -113,7 +113,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     // App state
     private String        mode;
     private String        ble;
-    private boolean       modeChosen = false;
+    private boolean       modeChosenThisSession = false;
     private BluetoothGatt gatt;
 
     // BLE transfer state
@@ -195,9 +195,9 @@ public class WearableManagerActivity extends AppCompatActivity {
         btnSendExistingModel  = findViewById(R.id.buttonSendExistingModelWearable);
         btnUpdateMyName       = findViewById(R.id.buttonUpdateMyNameWearable);
 
-        tvUpdateNameHint  = findViewById(R.id.textUpdateNameHint);
-        tvTeachAlertsHint = findViewById(R.id.textTeachAlertsHint);
-        tvSendSavedHint   = findViewById(R.id.textSendSavedHint);
+        tvUpdateNameHint  = findViewById(R.id.textHintUpdateName);
+        tvTeachAlertsHint = findViewById(R.id.textHintTeachAlerts);
+        tvSendSavedHint   = findViewById(R.id.textHintSendModel);
 
         if (pb != null) {
             pb.setMax(100);
@@ -209,18 +209,18 @@ public class WearableManagerActivity extends AppCompatActivity {
 
     private void applyActionButtonText() {
         if (btnUpdateMyName != null)
-            btnUpdateMyName.setText("Set alert name");
+            btnUpdateMyName.setText("Update watch alert name");
         if (btnProceedTeachAlerts != null)
             btnProceedTeachAlerts.setText("Teach new alerts");
         if (btnSendExistingModel != null)
-            btnSendExistingModel.setText("Send alerts to watch");
+            btnSendExistingModel.setText("Send saved alerts to watch");
 
         if (tvUpdateNameHint != null)
-            tvUpdateNameHint.setText("Tell the watch what name to listen for");
+            tvUpdateNameHint.setText("Set the name used for 'My name' alerts.");
         if (tvTeachAlertsHint != null)
-            tvTeachAlertsHint.setText("Add sounds or your name for the watch to learn");
+            tvTeachAlertsHint.setText("Add new sounds (or my name) and improve alerts.");
         if (tvSendSavedHint != null)
-            tvSendSavedHint.setText("Push saved alerts from phone to watch");
+            tvSendSavedHint.setText("Send alerts already saved on this phone to the watch.");
     }
 
     private void bindActions() {
@@ -234,7 +234,7 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         if (btnConnect != null) {
             btnConnect.setOnClickListener(v -> {
-                if (!modeChosen) { showModeGateDialog(); return; }
+                if (!modeChosenThisSession) { showModeGateDialog(); return; }
                 if (isConnected()) {
                     safeClose();
                     refreshConnUi(false);
@@ -272,107 +272,29 @@ public class WearableManagerActivity extends AppCompatActivity {
     }
 
     // ─────────────────────────────────────────────
-    //  Mode gate dialog — custom card style
+    //  Mode gate dialog
     // ─────────────────────────────────────────────
 
     private void showModeGateDialog() {
-        if (modeChosen) return;
+        if (modeChosenThisSession) return;
 
-        View dialogView = getLayoutInflater()
-                .inflate(R.layout.dialog_choose_mode, null);
-
-        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
-                .setView(dialogView)
-                .setCancelable(true)
-                .create();
-
-        if (dialog.getWindow() != null)
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-        View           optionSounds    = dialogView.findViewById(R.id.dialogOptionSounds);
-        View           optionMyName    = dialogView.findViewById(R.id.dialogOptionMyName);
-        TextView       checkSounds     = dialogView.findViewById(R.id.dialogCheckSounds);
-        TextView       checkMyName     = dialogView.findViewById(R.id.dialogCheckMyName);
-        TextView       titleSounds     = dialogView.findViewById(R.id.dialogTitleSounds);
-        TextView       subtitleSounds  = dialogView.findViewById(R.id.dialogSubtitleSounds);
-        TextView       titleMyName     = dialogView.findViewById(R.id.dialogTitleMyName);
-        TextView       subtitleMyName  = dialogView.findViewById(R.id.dialogSubtitleMyName);
-        MaterialButton btnContinue     = dialogView.findViewById(R.id.dialogBtnContinue);
-
-        final String[] chosen = { MODE_NV };
-
-        if (MODE_VC.equals(mode)) {
-            chosen[0] = MODE_VC;
-            checkMyName.setVisibility(View.VISIBLE);
-            checkSounds.setVisibility(View.INVISIBLE);
-            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
-            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
-            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, true);
-            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, false);
-        } else {
-            checkSounds.setVisibility(View.VISIBLE);
-            checkMyName.setVisibility(View.INVISIBLE);
-            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
-            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
-            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, true);
-            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, false);
-        }
-
-        optionSounds.setOnClickListener(v -> {
-            chosen[0] = MODE_NV;
-            checkSounds.setVisibility(View.VISIBLE);
-            checkMyName.setVisibility(View.INVISIBLE);
-            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
-            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
-            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, true);
-            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, false);
-        });
-
-        optionMyName.setOnClickListener(v -> {
-            chosen[0] = MODE_VC;
-            checkMyName.setVisibility(View.VISIBLE);
-            checkSounds.setVisibility(View.INVISIBLE);
-            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
-            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
-            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, true);
-            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, false);
-        });
-
-        btnContinue.setOnClickListener(v -> {
-            onModeChosen(chosen[0]);
-            dialog.dismiss();
-        });
-
-        // Allow back-press to leave the screen instead of blocking indefinitely.
-        dialog.setOnCancelListener(d -> finish());
-
-        dialog.show();
-    }
-
-    // ─────────────────────────────────────────────
-    //  Mode helpers
-    // ─────────────────────────────────────────────
-
-    /** Updates text colors for a mode option row to match the selected/unselected state. */
-    private void setModeOptionColors(TextView title, TextView subtitle, TextView check,
-                                     boolean selected) {
-        int titleColor    = selected ? android.graphics.Color.WHITE
-                                     : android.graphics.Color.parseColor("#111827");
-        int subtitleColor = selected ? android.graphics.Color.parseColor("#CBD5E1")
-                                     : android.graphics.Color.parseColor("#6B7280");
-        title.setTextColor(titleColor);
-        subtitle.setTextColor(subtitleColor);
-        check.setTextColor(android.graphics.Color.WHITE);
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("What should my watch listen for?")
+                .setMessage("Choose one to continue:\n\n• Sounds (horn, doorbell)\n• My name (someone calls me)")
+                .setCancelable(false)
+                .setPositiveButton("Sounds", (d, w) -> onModeChosen(MODE_NV))
+                .setNegativeButton("My name", (d, w) -> onModeChosen(MODE_VC))
+                .show();
     }
 
     private void onModeChosen(String newMode) {
         setMode(newMode);
-        modeChosen = true;
+        modeChosenThisSession = true;
         updateEnabledState();
     }
 
     private void updateEnabledState() {
-        boolean modeOk    = modeChosen;
+        boolean modeOk    = modeChosenThisSession;
         boolean connected = isConnected();
 
         if (btnConnect != null) {
@@ -380,16 +302,14 @@ public class WearableManagerActivity extends AppCompatActivity {
             btnConnect.setAlpha(modeOk ? 1f : 0.45f);
         }
 
-        // Action buttons are always enabled; their click handlers show a
-        // "please connect first" toast when the watch is not yet connected.
-        setActionEnabled(btnUpdateMyName,       true);
-        setActionEnabled(btnProceedTeachAlerts, true);
-        setActionEnabled(btnSendExistingModel,  true);
+        setActionEnabled(btnUpdateMyName,       connected);
+        setActionEnabled(btnProceedTeachAlerts, connected);
+        setActionEnabled(btnSendExistingModel,  connected);
 
         if (tvStatus != null) {
-            if (!modeOk)         tvStatus.setText("Pick 👂 Sounds or 🗣️ My name to continue.");
-            else if (!connected) tvStatus.setText("Now connect your watch.");
-            else                 tvStatus.setText("Watch connected. Choose what to do.");
+            if (!modeOk)         tvStatus.setText("Choose what my watch should listen for.");
+            else if (!connected) tvStatus.setText("Good. Now connect my watch.");
+            else                 tvStatus.setText("My watch is connected. Choose an action below.");
         }
     }
 
@@ -411,7 +331,7 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         // If a mode was already persisted, treat it as chosen so the Connect
         // button is enabled immediately on return visits.
-        if (sp.contains(PREF_MODE)) modeChosen = true;
+        if (sp.contains(PREF_MODE)) modeChosenThisSession = true;
 
         ble = sp.getString(PREF_BLE, "");
         if (ble == null || ble.trim().isEmpty() || "ble_address".equals(ble))
@@ -424,9 +344,9 @@ public class WearableManagerActivity extends AppCompatActivity {
         String lastModel = sp.getString(MODE_VC.equals(mode) ? PREF_XFER_VC : PREF_XFER_NV, "");
         String lastLbl   = sp.getString(MODE_VC.equals(mode) ? PREF_LAST_LBL_SENT_VC : PREF_LAST_LBL_SENT_NV, "");
         if (tvWatchModel != null)
-            tvWatchModel.setText(TextUtils.isEmpty(lastModel) ? "Not sent yet" : "Last sent: " + lastModel);
+            tvWatchModel.setText(TextUtils.isEmpty(lastModel) ? "Alerts on my watch: not sent yet" : "Last sent: " + lastModel);
         if (tvWatchClasses != null)
-            tvWatchClasses.setText(TextUtils.isEmpty(lastLbl) ? "Not set" : "Last: " + lastLbl);
+            tvWatchClasses.setText(TextUtils.isEmpty(lastLbl) ? "My name on watch: not set" : "Last: " + lastLbl);
     }
 
     private void setMode(String newMode) {
@@ -440,8 +360,8 @@ public class WearableManagerActivity extends AppCompatActivity {
 
         if (tvModeDescription != null) {
             tvModeDescription.setText(v
-                    ? "Vibrates when someone calls you"
-                    : "Vibrates for sounds like horn or doorbell.");
+                    ? "My name: my watch can vibrate when someone calls my name."
+                    : "Sounds: my watch can vibrate for important sounds like a horn or doorbell.");
         }
 
         if (btnModeSounds != null && btnModeVoice != null) {
@@ -749,9 +669,9 @@ public class WearableManagerActivity extends AppCompatActivity {
             String lastLbl = prefs().getString(
                     MODE_VC.equals(mode) ? PREF_LAST_LBL_SENT_VC : PREF_LAST_LBL_SENT_NV, "");
             if (tvWatchClasses != null)
-                tvWatchClasses.setText(TextUtils.isEmpty(lastLbl) ? "Not set" : "Last: " + lastLbl);
+                tvWatchClasses.setText(TextUtils.isEmpty(lastLbl) ? "My name on watch: not set" : "Last: " + lastLbl);
             if (tvStatus != null)
-                tvStatus.setText("Watch connected. Choose what to do.");
+                tvStatus.setText("My watch is connected. Choose an action below.");
         });
         disconnLater();
     }
@@ -856,12 +776,12 @@ public class WearableManagerActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             if (pb   != null) pb.setVisibility(View.GONE);
             if (tvPct != null) tvPct.setVisibility(View.GONE);
-            if (tvStatus != null) tvStatus.setText("Watch connected. Choose what to do.");
+            if (tvStatus != null) tvStatus.setText("My watch is connected. Choose an action below.");
             String lastModel = prefs().getString(
                     MODE_VC.equals(mode) ? PREF_XFER_VC : PREF_XFER_NV, "");
             if (tvWatchModel != null)
                 tvWatchModel.setText(TextUtils.isEmpty(lastModel)
-                        ? "Not sent yet" : "Last sent: " + lastModel);
+                        ? "Alerts on my watch: not sent yet" : "Last sent: " + lastModel);
             Toast.makeText(this, "Model sent to watch.", Toast.LENGTH_SHORT).show();
         });
         disconnLater();
@@ -910,7 +830,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         prefs().edit().putBoolean(PREF_WATCH_CONNECTED, on).apply();
 
         if (tvConnState != null) {
-            tvConnState.setText(on ? "Connected" : "Not connected");
+            tvConnState.setText(on ? "✅ Connected" : "❌ Not connected");
             tvConnState.setTextColor(android.graphics.Color.parseColor(
                     on ? "#22C55E" : "#EF4444"));
         }
@@ -940,7 +860,7 @@ public class WearableManagerActivity extends AppCompatActivity {
             BluetoothDevice dev = ba.getRemoteDevice(ble);
             safeClose();
             if (pb != null) pb.setVisibility(View.VISIBLE);
-            if (tvStatus != null) tvStatus.setText("Connecting...");
+            if (tvStatus != null) tvStatus.setText("Connecting to my watch\u2026");
 
             gatt = dev.connectGatt(this, false, new BluetoothGattCallback() {
                 @Override

@@ -111,7 +111,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Vibrates for sounds like horn or doorbell."
+                        android:text="Sounds: my watch can vibrate for important sounds like a horn or doorbell."
                         android:textColor="#6B7280"
                         android:textSize="14sp"/>
 
@@ -162,7 +162,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Not connected"
+                            android:text="❌ Not connected"
                             android:textColor="#EF4444"
                             android:textSize="20sp"
                             android:textStyle="bold"/>
@@ -223,7 +223,7 @@
                         android:background="@drawable/bg_info_row"
                         android:padding="12dp"
                         android:layout_marginBottom="8dp"
-                        android:text="Not sent yet"
+                        android:text="Alerts on my watch: not sent yet"
                         android:textColor="#1A237E"
                         android:textSize="14sp"/>
 
@@ -233,7 +233,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_info_row"
                         android:padding="12dp"
-                        android:text="Not set"
+                        android:text="My name on watch: not set"
                         android:textColor="#1A237E"
                         android:textSize="14sp"/>
 
@@ -247,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:padding="4dp"
-                android:text="Pick 👂 Sounds or 🗣️ My name to continue."
+                android:text="Choose what my watch should listen for."
                 android:textColor="#6B7280"
                 android:textSize="14sp"/>
 
@@ -297,7 +297,7 @@
                         android:id="@+id/buttonUpdateMyNameWearable"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:text="Set alert name"
+                        android:text="Update watch alert name"
                         android:textSize="15sp"
                         app:backgroundTint="#1A237E"
                         app:cornerRadius="8dp"
@@ -305,10 +305,10 @@
                         style="@style/Widget.MaterialComponents.Button"/>
 
                     <TextView
-                        android:id="@+id/textUpdateNameHint"
+                        android:id="@+id/textHintUpdateName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Tell the watch what name to listen for"
+                        android:text="Set the name used for 'My name' alerts."
                         android:textColor="#6B7280"
                         android:textSize="12sp"
                         android:textStyle="italic"
@@ -329,10 +329,10 @@
                         style="@style/Widget.MaterialComponents.Button"/>
 
                     <TextView
-                        android:id="@+id/textTeachAlertsHint"
+                        android:id="@+id/textHintTeachAlerts"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Add sounds or your name for the watch to learn"
+                        android:text="Add new sounds (or my name) and improve alerts."
                         android:textColor="#6B7280"
                         android:textSize="12sp"
                         android:textStyle="italic"
@@ -345,7 +345,7 @@
                         android:id="@+id/buttonSendExistingModelWearable"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:text="Send alerts to watch"
+                        android:text="Send saved alerts to watch"
                         android:textSize="15sp"
                         app:backgroundTint="#1A237E"
                         app:cornerRadius="8dp"
@@ -353,10 +353,10 @@
                         style="@style/Widget.MaterialComponents.Button"/>
 
                     <TextView
-                        android:id="@+id/textSendSavedHint"
+                        android:id="@+id/textHintSendModel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Push saved alerts from phone to watch"
+                        android:text="Send alerts already saved on this phone to the watch."
                         android:textColor="#6B7280"
                         android:textSize="12sp"
                         android:textStyle="italic"
