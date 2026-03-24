@@ -387,7 +387,7 @@ public class WearableManagerActivity extends AppCompatActivity {
         setActionEnabled(btnSendExistingModel,  true);
 
         if (tvStatus != null) {
-            if (!modeOk)         tvStatus.setText("Pick Sounds or My name to continue.");
+            if (!modeOk)         tvStatus.setText("Pick 👂 Sounds or 🗣️ My name to continue.");
             else if (!connected) tvStatus.setText("Now connect your watch.");
             else                 tvStatus.setText("Watch connected. Choose what to do.");
         }
@@ -449,8 +449,8 @@ public class WearableManagerActivity extends AppCompatActivity {
             modeBtn(v ? btnModeSounds : btnModeVoice,  false);
         }
 
-        if (btnModeSounds != null) btnModeSounds.setText("Sounds");
-        if (btnModeVoice  != null) btnModeVoice.setText("My name");
+        if (btnModeSounds != null) btnModeSounds.setText("👂 Sounds");
+        if (btnModeVoice  != null) btnModeVoice.setText("🗣️ My name");
     }
 
     private void modeBtn(MaterialButton b, boolean active) {

@@ -86,7 +86,7 @@
                             android:layout_height="64dp"
                             android:layout_weight="1"
                             android:layout_marginEnd="6dp"
-                            android:text="Sounds"
+                            android:text="👂 Sounds"
                             android:textSize="15sp"
                             android:textStyle="bold"
                             app:cornerRadius="8dp"
@@ -98,7 +98,7 @@
                             android:layout_height="64dp"
                             android:layout_weight="1"
                             android:layout_marginStart="6dp"
-                            android:text="My name"
+                            android:text="🗣️ My name"
                             android:textSize="15sp"
                             android:textStyle="bold"
                             app:cornerRadius="8dp"
@@ -247,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:padding="4dp"
-                android:text="Pick Sounds or My name to continue."
+                android:text="Pick 👂 Sounds or 🗣️ My name to continue."
                 android:textColor="#6B7280"
                 android:textSize="14sp"/>
 
