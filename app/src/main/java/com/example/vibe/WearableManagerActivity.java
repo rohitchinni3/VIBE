@@ -272,19 +272,95 @@ public class WearableManagerActivity extends AppCompatActivity {
     }
 
     // ─────────────────────────────────────────────
-    //  Mode gate dialog
+    //  Mode gate dialog — custom card style
     // ─────────────────────────────────────────────
 
     private void showModeGateDialog() {
         if (modeChosenThisSession) return;
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("What should my watch listen for?")
-                .setMessage("Choose one to continue:\n\n• Sounds (horn, doorbell)\n• My name (someone calls me)")
-                .setCancelable(false)
-                .setPositiveButton("Sounds", (d, w) -> onModeChosen(MODE_NV))
-                .setNegativeButton("My name", (d, w) -> onModeChosen(MODE_VC))
-                .show();
+        View dialogView = getLayoutInflater()
+                .inflate(R.layout.dialog_choose_mode, null);
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        View           optionSounds    = dialogView.findViewById(R.id.dialogOptionSounds);
+        View           optionMyName    = dialogView.findViewById(R.id.dialogOptionMyName);
+        TextView       checkSounds     = dialogView.findViewById(R.id.dialogCheckSounds);
+        TextView       checkMyName     = dialogView.findViewById(R.id.dialogCheckMyName);
+        TextView       titleSounds     = dialogView.findViewById(R.id.dialogTitleSounds);
+        TextView       subtitleSounds  = dialogView.findViewById(R.id.dialogSubtitleSounds);
+        TextView       titleMyName     = dialogView.findViewById(R.id.dialogTitleMyName);
+        TextView       subtitleMyName  = dialogView.findViewById(R.id.dialogSubtitleMyName);
+        MaterialButton btnContinue     = dialogView.findViewById(R.id.dialogBtnContinue);
+
+        final String[] chosen = { MODE_NV };
+
+        if (MODE_VC.equals(mode)) {
+            chosen[0] = MODE_VC;
+            checkMyName.setVisibility(View.VISIBLE);
+            checkSounds.setVisibility(View.INVISIBLE);
+            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
+            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, true);
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, false);
+        } else {
+            checkSounds.setVisibility(View.VISIBLE);
+            checkMyName.setVisibility(View.INVISIBLE);
+            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
+            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, true);
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, false);
+        }
+
+        optionSounds.setOnClickListener(v -> {
+            chosen[0] = MODE_NV;
+            checkSounds.setVisibility(View.VISIBLE);
+            checkMyName.setVisibility(View.INVISIBLE);
+            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
+            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, true);
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, false);
+        });
+
+        optionMyName.setOnClickListener(v -> {
+            chosen[0] = MODE_VC;
+            checkMyName.setVisibility(View.VISIBLE);
+            checkSounds.setVisibility(View.INVISIBLE);
+            optionMyName.setBackground(getDrawable(R.drawable.bg_mode_option_selected));
+            optionSounds.setBackground(getDrawable(R.drawable.bg_mode_option_unselected));
+            setModeOptionColors(titleMyName, subtitleMyName, checkMyName, true);
+            setModeOptionColors(titleSounds, subtitleSounds, checkSounds, false);
+        });
+
+        btnContinue.setOnClickListener(v -> {
+            onModeChosen(chosen[0]);
+            dialog.dismiss();
+        });
+
+        // Allow back-press to leave the screen instead of blocking indefinitely.
+        dialog.setOnCancelListener(d -> finish());
+
+        dialog.show();
+    }
+
+    // ─────────────────────────────────────────────
+    //  Mode helpers
+    // ─────────────────────────────────────────────
+
+    /** Updates text colors for a mode option row to match the selected/unselected state. */
+    private void setModeOptionColors(TextView title, TextView subtitle, TextView check,
+                                     boolean selected) {
+        int color = selected ? android.graphics.Color.WHITE
+                             : android.graphics.Color.parseColor("#1A237E");
+        title.setTextColor(color);
+        subtitle.setTextColor(color);
+        check.setTextColor(android.graphics.Color.WHITE);
     }
 
     private void onModeChosen(String newMode) {

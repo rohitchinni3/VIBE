@@ -66,7 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sounds"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#1A237E"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
@@ -75,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Vibrate for horn, doorbell, and more"
-                    android:textColor="#CBD5E1"
+                    android:textColor="#1A237E"
                     android:textSize="13sp"
                     android:layout_marginTop="2dp"/>
 
@@ -124,7 +124,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="My name"
-                    android:textColor="#111827"
+                    android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
@@ -133,7 +133,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Vibrate when someone calls your name"
-                    android:textColor="#6B7280"
+                    android:textColor="#FFFFFF"
                     android:textSize="13sp"
                     android:layout_marginTop="2dp"/>
 
@@ -157,6 +157,7 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:text="Continue"
+            android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="#1A237E"
