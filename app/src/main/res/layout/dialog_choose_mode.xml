@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  dialog_choose_mode.xml
+  Shown on first launch of WearableManagerActivity before the mode is chosen.
+  User selects either "Sounds" (non-voice model) or "My name" (voice model).
+  IDs used by showModeGateDialog() in WearableManagerActivity.java:
+    dialogOptionSounds, dialogOptionMyName, dialogCheckSounds,
+    dialogCheckMyName, dialogBtnContinue.
+-->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
