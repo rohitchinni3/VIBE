@@ -1,7 +1,6 @@
 package com.example.vibe;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -21,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -465,17 +465,40 @@ public class WearableManagerActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
             return;
         }
-        String[] names = new String[dirs.size()];
-        for (int i = 0; i < dirs.size(); i++) names[i] = dirs.get(i).getName();
 
-        new AlertDialog.Builder(this)
-                .setTitle("Choose a saved model")
-                .setItems(names, (d, which) -> {
-                    selectedModelDir = dirs.get(which);
-                    confirmThenSendSelectedModel();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        View         dialogView = getLayoutInflater().inflate(R.layout.dialog_choose_model, null);
+        LinearLayout container  = dialogView.findViewById(R.id.dialogModelItemsContainer);
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        int rowSpacingPx = dpToPx(10);
+        for (File dir : dirs) {
+            View item = getLayoutInflater().inflate(R.layout.item_model_choice, container, false);
+            ((TextView) item.findViewById(R.id.itemModelName)).setText(dir.getName());
+            ((TextView) item.findViewById(R.id.itemModelDate))
+                    .setText(DateFormat.getDateTimeInstance()
+                            .format(new Date(dir.lastModified())));
+            item.setOnClickListener(v -> {
+                selectedModelDir = dir;
+                dialog.dismiss();
+                confirmThenSendSelectedModel();
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(0, 0, 0, rowSpacingPx);
+            item.setLayoutParams(lp);
+            container.addView(item);
+        }
+
+        dialogView.findViewById(R.id.dialogBtnCancelModel)
+                .setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void confirmThenSendSelectedModel() {
@@ -486,12 +509,26 @@ public class WearableManagerActivity extends AppCompatActivity {
         String date = DateFormat.getDateTimeInstance()
                 .format(new Date(selectedModelDir.lastModified()));
 
-        new AlertDialog.Builder(this)
-                .setTitle("Send model to watch?")
-                .setMessage("Model: " + name + "\nSize: " + size + "\nSaved: " + date)
-                .setPositiveButton("Send", (d, w) -> sendModelDirToWatch(selectedModelDir))
-                .setNegativeButton("Cancel", null)
-                .show();
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_confirm_send, null);
+        ((TextView) dialogView.findViewById(R.id.dialogConfirmModelName)).setText(name);
+        ((TextView) dialogView.findViewById(R.id.dialogConfirmModelSize)).setText(size);
+        ((TextView) dialogView.findViewById(R.id.dialogConfirmModelDate)).setText(date);
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialogView.findViewById(R.id.dialogBtnCancelSend)
+                .setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.dialogBtnConfirmSend)
+                .setOnClickListener(v -> {
+                    dialog.dismiss();
+                    sendModelDirToWatch(selectedModelDir);
+                });
+        dialog.show();
     }
 
     private List<File> listSavedModelDirs() {
@@ -554,12 +591,25 @@ public class WearableManagerActivity extends AppCompatActivity {
         Collections.sort(sorted);
         String csv = TextUtils.join(",", sorted);
 
-        new AlertDialog.Builder(this)
-                .setTitle("Send labels to watch?")
-                .setMessage("Classes: " + csv)
-                .setPositiveButton("Send", (d, w) -> updateLabelsFlowInternal(csv, sorted))
-                .setNegativeButton("Cancel", null)
-                .show();
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_confirm_labels, null);
+        ((TextView) dialogView.findViewById(R.id.dialogLabelsList))
+                .setText(TextUtils.join("\n", sorted));
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialogView.findViewById(R.id.dialogBtnCancelLabels)
+                .setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.dialogBtnSendLabels)
+                .setOnClickListener(v -> {
+                    dialog.dismiss();
+                    updateLabelsFlowInternal(csv, sorted);
+                });
+        dialog.show();
     }
 
     private void updateLabelsFlowInternal(String csv, List<String> sortedLabels) {
@@ -572,29 +622,36 @@ public class WearableManagerActivity extends AppCompatActivity {
     }
 
     private void promptTargetThenSend(String csv, List<String> cleanedLabels) {
-        EditText et = new EditText(this);
-        et.setHint("e.g. Alex");
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_target_name, null);
+        TextView tvSubtitle = dialogView.findViewById(R.id.dialogTargetSubtitle);
+        EditText etName     = dialogView.findViewById(R.id.dialogTargetNameInput);
+        tvSubtitle.setText("Must match one of: " + TextUtils.join(", ", cleanedLabels));
 
-        new AlertDialog.Builder(this)
-                .setTitle("Who should the watch listen for?")
-                .setMessage("Enter the target name (must match one of: "
-                        + TextUtils.join(", ", cleanedLabels) + ")")
-                .setView(et)
-                .setPositiveButton("Send", (d, w) -> {
-                    String name = et.getText().toString().trim();
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialogView.findViewById(R.id.dialogBtnCancelTarget)
+                .setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.dialogBtnSendTarget)
+                .setOnClickListener(v -> {
+                    String name = etName.getText().toString().trim();
                     if (name.isEmpty() || !cleanedLabels.contains(name)) {
                         Toast.makeText(this,
                                 "Name must match one of the classes.",
                                 Toast.LENGTH_LONG).show();
                         return;
                     }
+                    dialog.dismiss();
                     pendingName   = name;
                     pendingTarget = true;
                     pendingCsv    = csv;
                     new Thread(() -> bleSendLabels(csv)).start();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                });
+        dialog.show();
     }
 
     // ─────────────────────────────────────────────
