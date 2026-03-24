@@ -658,6 +658,9 @@ public class WearableManagerActivity extends AppCompatActivity {
     //  BLE — labels send
     // ─────────────────────────────────────────────
 
+    // Uses BluetoothGattCharacteristic.setValue() and BluetoothGattDescriptor.setValue()
+    // which are deprecated in API 33+; the replacement API (BluetoothGatt.writeCharacteristic
+    // with a byte[] overload) is not available on older devices we still support.
     @SuppressWarnings("deprecation")
     private void bleSendLabels(String csv) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
@@ -733,6 +736,8 @@ public class WearableManagerActivity extends AppCompatActivity {
     //  BLE — OTA model transfer
     // ─────────────────────────────────────────────
 
+    // Uses BluetoothGattCharacteristic.setValue() / gatt.writeCharacteristic(chr) which
+    // are deprecated in API 33+. Kept for broad device support.
     @SuppressWarnings("deprecation")
     private void bleTransfer(byte[] weights, int chunkSz, String folderName) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
@@ -787,6 +792,8 @@ public class WearableManagerActivity extends AppCompatActivity {
         return result;
     }
 
+    // Uses BluetoothGattCharacteristic.setValue() / gatt.writeCharacteristic(chr) which
+    // are deprecated in API 33+. Kept for broad device support.
     @SuppressWarnings("deprecation")
     private void sendChunk() {
         if (chunks == null || chunkIdx >= chunks.length) {
@@ -808,6 +815,8 @@ public class WearableManagerActivity extends AppCompatActivity {
         ackH.postDelayed(this::retryChunk, ACK_TIMEOUT_MS);
     }
 
+    // Uses BluetoothGattCharacteristic.setValue() / gatt.writeCharacteristic(chr) which
+    // are deprecated in API 33+. Kept for broad device support.
     @SuppressWarnings("deprecation")
     private void sendEnd() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
@@ -863,7 +872,7 @@ public class WearableManagerActivity extends AppCompatActivity {
     private void saveLastLabelsSent(String csv) {
         String key      = MODE_VC.equals(mode) ? PREF_LAST_LBL_SENT_VC : PREF_LAST_LBL_SENT_NV;
         String truncated = csv.length() > MAX_LABEL_DISPLAY_LENGTH
-                ? csv.substring(0, MAX_LABEL_DISPLAY_LENGTH) + "\u2026" : csv;
+                ? csv.substring(0, MAX_LABEL_DISPLAY_LENGTH) + "…" : csv;
         prefs().edit().putString(key, truncated).apply();
     }
 
@@ -945,7 +954,7 @@ public class WearableManagerActivity extends AppCompatActivity {
                             final int total    = chunks != null ? chunks.length : 1;
                             // Dispatch UI update and next write to the main thread.
                             // Calling gatt.writeCharacteristic() directly from the
-                            // GATT callback thread can cause serialisation issues on
+                            // GATT callback thread can cause serialization issues on
                             // some Android versions.
                             ackH.post(() -> {
                                 if (pb != null) pb.setProgress(progress);
