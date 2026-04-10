@@ -240,6 +240,127 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Vibration Sensitivity Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎚️ Vibration Sensitivity"
+                        android:textColor="#1A237E"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"
+                        android:contentDescription="Vibration sensitivity settings"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Set the confidence range at which your watch vibrates. Sounds detected within this range will trigger a vibration."
+                        android:textColor="#6B7280"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Min / Max value labels -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:id="@+id/textThresholdMin"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Min: 30%"
+                            android:textColor="#1A237E"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:contentDescription="Minimum threshold: 30 percent"/>
+
+                        <TextView
+                            android:id="@+id/textThresholdMax"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Max: 80%"
+                            android:textColor="#1A237E"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:gravity="end"
+                            android:contentDescription="Maximum threshold: 80 percent"/>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.slider.RangeSlider
+                        android:id="@+id/sliderThreshold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:valueFrom="0"
+                        android:valueTo="100"
+                        android:stepSize="1"
+                        app:trackColorActive="#1A237E"
+                        app:trackColorInactive="#C5CAE9"
+                        app:thumbColor="#1A237E"
+                        app:haloColor="#331A237E"
+                        app:labelBehavior="floating"
+                        android:contentDescription="Drag to set the minimum and maximum vibration threshold"/>
+
+                    <!-- Slider endpoint labels -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="-4dp"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0 – Less sensitive"
+                            android:textColor="#9CA3AF"
+                            android:textSize="11sp"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="100 – More sensitive"
+                            android:textColor="#9CA3AF"
+                            android:textSize="11sp"
+                            android:gravity="end"/>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonResetThreshold"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:text="Reset to defaults"
+                        android:textSize="14sp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        app:cornerRadius="8dp"
+                        app:strokeColor="#1A237E"
+                        android:textColor="#1A237E"
+                        android:contentDescription="Reset vibration threshold to default values"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Status / Progress -->
             <TextView
                 android:id="@+id/textWearableStatus"

@@ -32,6 +32,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.RangeSlider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -109,6 +110,14 @@ public class WearableManagerActivity extends AppCompatActivity {
     private TextView       tvUpdateNameHint;
     private TextView       tvTeachAlertsHint;
     private TextView       tvSendSavedHint;
+
+    // Threshold UI
+    private RangeSlider    sliderThreshold;
+    private TextView       tvThresholdMin;
+    private TextView       tvThresholdMax;
+    private MaterialButton btnResetThreshold;
+    private static final float DEFAULT_THRESHOLD_MIN = 30f;
+    private static final float DEFAULT_THRESHOLD_MAX = 80f;
 
     // App state
     private String        mode;
@@ -199,6 +208,11 @@ public class WearableManagerActivity extends AppCompatActivity {
         tvTeachAlertsHint = findViewById(R.id.textHintTeachAlerts);
         tvSendSavedHint   = findViewById(R.id.textHintSendModel);
 
+        sliderThreshold   = findViewById(R.id.sliderThreshold);
+        tvThresholdMin    = findViewById(R.id.textThresholdMin);
+        tvThresholdMax    = findViewById(R.id.textThresholdMax);
+        btnResetThreshold = findViewById(R.id.buttonResetThreshold);
+
         if (pb != null) {
             pb.setMax(100);
             pb.setProgress(0);
@@ -268,6 +282,51 @@ public class WearableManagerActivity extends AppCompatActivity {
                 }
                 chooseModelThenSend();
             });
+        }
+
+        // Threshold slider (dummy – functionality added later)
+        setupThresholdSlider();
+    }
+
+    /** Initialises the vibration-threshold range slider with defaults and a change listener. */
+    private void setupThresholdSlider() {
+        if (sliderThreshold != null) {
+            java.util.List<Float> defaults = new java.util.ArrayList<>();
+            defaults.add(DEFAULT_THRESHOLD_MIN);
+            defaults.add(DEFAULT_THRESHOLD_MAX);
+            sliderThreshold.setValues(defaults);
+            updateThresholdLabels(DEFAULT_THRESHOLD_MIN, DEFAULT_THRESHOLD_MAX);
+
+            sliderThreshold.addOnChangeListener((slider, value, fromUser) -> {
+                java.util.List<Float> vals = slider.getValues();
+                float lo = vals.get(0);
+                float hi = vals.get(1);
+                updateThresholdLabels(lo, hi);
+            });
+        }
+
+        if (btnResetThreshold != null) {
+            btnResetThreshold.setOnClickListener(v -> {
+                if (sliderThreshold != null) {
+                    java.util.List<Float> defaults = new java.util.ArrayList<>();
+                    defaults.add(DEFAULT_THRESHOLD_MIN);
+                    defaults.add(DEFAULT_THRESHOLD_MAX);
+                    sliderThreshold.setValues(defaults);
+                    updateThresholdLabels(DEFAULT_THRESHOLD_MIN, DEFAULT_THRESHOLD_MAX);
+                    Toast.makeText(this, "Threshold reset to defaults.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void updateThresholdLabels(float min, float max) {
+        if (tvThresholdMin != null) {
+            tvThresholdMin.setText("Min: " + Math.round(min) + "%");
+            tvThresholdMin.setContentDescription("Minimum threshold: " + Math.round(min) + " percent");
+        }
+        if (tvThresholdMax != null) {
+            tvThresholdMax.setText("Max: " + Math.round(max) + "%");
+            tvThresholdMax.setContentDescription("Maximum threshold: " + Math.round(max) + " percent");
         }
     }
 
